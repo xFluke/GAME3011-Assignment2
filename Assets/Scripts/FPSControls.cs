@@ -10,7 +10,7 @@ public class FPSControls : MonoBehaviour
     float speed = 10f;
 
     bool inRangeOfDoor = false;
-    bool lockpicking = false;
+    bool lockpicking = true;
 
     // Start is called before the first frame update
     void Start()
@@ -20,14 +20,16 @@ public class FPSControls : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        CameraMovement();
-        PlayerMovement();
+        if (!lockpicking) {
 
-        if (Input.GetKeyDown(KeyCode.E) && inRangeOfDoor) {
-            Debug.Log("Unlocking Door");
-            lockpicking = true;
+            CameraMovement();
+            PlayerMovement();
+
+            if (Input.GetKeyDown(KeyCode.E) && inRangeOfDoor) {
+                Debug.Log("Unlocking Door");
+                lockpicking = true;
+            }
         }
-
     }
 
     private void PlayerMovement() {

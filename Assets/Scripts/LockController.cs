@@ -6,22 +6,35 @@ public enum LockDifficulty
 {
     EASY,
     MEDIUM,
-    HARD
+    HARD,
+    VERY_HARD
 }
 
 public class LockController : MonoBehaviour
 {
+    [SerializeField] LockDifficulty lockDifficulty;
+    
+    float difficultyModifier;
 
+    float lockpickRangeMin;
+    float lockpickRangeMax;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        difficultyModifier = 20f - (int)lockDifficulty * 5;
+
+        lockpickRangeMin = Random.Range(20f, 160f);
+        lockpickRangeMax = lockpickRangeMin + difficultyModifier;
+
+        Debug.Log("Lock Min: " + lockpickRangeMin);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public float GetLockpickRangeMin() {
+        return lockpickRangeMin;
+    }
+
+    public float GetLockpickRangeMax() {
+        return lockpickRangeMax;
     }
 }
