@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LockpickingMinigame : MonoBehaviour
 {
@@ -8,8 +9,13 @@ public class LockpickingMinigame : MonoBehaviour
 
     float pinAngle;
 
-    public RectTransform pinRectTransform;
-    public RectTransform smallLockRectTransform;
+    [SerializeField] RectTransform pinRectTransform;
+    [SerializeField] RectTransform smallLockRectTransform;
+    [SerializeField] Text difficultyText;
+    [SerializeField] Text timerText;
+    [SerializeField] GameObject resultsPanel;
+
+    [SerializeField] float allowedTime;
 
     float pinRotateSpeed = 2f;
 
@@ -17,10 +23,9 @@ public class LockpickingMinigame : MonoBehaviour
 
     bool attemptingLock = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+    private void Start() {
+        difficultyText.text = "Lock Difficulty: " + lockController.GetLockDifficulty().ToString();
+        timerText.text = "Time Left: " + allowedTime.ToString();
     }
 
     // Update is called once per frame
@@ -42,8 +47,6 @@ public class LockpickingMinigame : MonoBehaviour
                 else {
                     correctAngle = false;
                 }
-
-                Debug.Log("Angle is " + correctAngle);
 
                 float distFromPinAngleToLockpickRangeMinimum = Mathf.Abs(-pinAngle - lockController.GetLockpickRangeMin());
                 float distFromPinAngleToLockpickRangeMaximum = Mathf.Abs(-pinAngle - lockController.GetLockpickRangeMax());
@@ -72,6 +75,19 @@ public class LockpickingMinigame : MonoBehaviour
                 Debug.Log("Max Turn Angle: " + maxTurnAngle);
                 StartCoroutine(AnimatePinRotation(maxTurnAngle, correctAngle));
             }
+
+            allowedTime -= Time.deltaTime;
+            
+            if (allowedTime <= 0) {
+                allowedTime = 0;
+                gameIsActive = false;
+            }
+
+            timerText.text = "Time Left: " + Mathf.Round(allowedTime).ToString();
+        }
+        else {
+            resultsPanel.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 
@@ -87,7 +103,7 @@ public class LockpickingMinigame : MonoBehaviour
         attemptingLock = true;
         float currentAngle = smallLockRectTransform.rotation.eulerAngles.z;
 
-        while (Mathf.Abs(-currentAngle - maxTurnAngle) > 0.1) { 
+        while (Mathf.Abs(-currentAngle - maxTurnAngle) > 0.1 && Input.GetKey(KeyCode.E)) { 
             float newAngle = Mathf.Lerp(-currentAngle, maxTurnAngle, 0.1f);
 
             smallLockRectTransform.rotation = Quaternion.Euler(0, 0, -newAngle);
@@ -99,10 +115,14 @@ public class LockpickingMinigame : MonoBehaviour
 
         attemptingLock = false;
 
-        if (correctAngle) {
-            gameObject.SetActive(false);
+        if (correctAngle && Input.GetKey(KeyCode.E)) {
+            //gameObject.SetActive(false);
+            resultsPanel.SetActive(true);
+            resultsPanel.GetComponentInChildren<Text>().text = "You successfully picked the lock!";
+            gameIsActive = false;
         }
         else {
+
             smallLockRectTransform.rotation = Quaternion.Euler(0, 0, 0);
         }
     }
@@ -113,5 +133,9 @@ public class LockpickingMinigame : MonoBehaviour
 
     private void OnDisable() {
         gameIsActive = false;
+
+        FindObjectOfType<FPSControls>().lockpicking = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Destroy(gameObject);
     }
 }

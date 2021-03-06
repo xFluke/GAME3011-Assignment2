@@ -19,6 +19,8 @@ public class LockController : MonoBehaviour
     float lockpickRangeMin;
     float lockpickRangeMax;
 
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +30,7 @@ public class LockController : MonoBehaviour
         lockpickRangeMax = lockpickRangeMin + difficultyModifier;
 
         Debug.Log("Lock Min: " + lockpickRangeMin);
+        Debug.Log("Lock Max: " + lockpickRangeMax);
     }
 
     public float GetLockpickRangeMin() {
@@ -36,5 +39,9 @@ public class LockController : MonoBehaviour
 
     public float GetLockpickRangeMax() {
         return lockpickRangeMax;
+    }
+
+    public LockDifficulty GetLockDifficulty() {
+        return lockDifficulty;
     }
 }
